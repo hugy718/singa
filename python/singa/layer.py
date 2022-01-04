@@ -665,20 +665,17 @@ class Conv2d(Layer):
             _x.set_value(0.0)
 
         if _x.device.id() == -1:
-            if self.group != 1:
-                raise ValueError("Not implemented yet")
-            else:
-                if not hasattr(self, "handle"):
-                    self.handle = singa.ConvHandle(
-                        _x.data,
-                        self.kernel_size,
-                        self.stride,
-                        self.padding,
-                        self.in_channels,
-                        self.nb_kernels,
-                        self.bias,
-                        self.group,
-                    )
+            if not hasattr(self, "handle"):
+                self.handle = singa.ConvHandle(
+                    _x.data,
+                    self.kernel_size,
+                    self.stride,
+                    self.padding,
+                    self.in_channels,
+                    self.nb_kernels,
+                    self.bias,
+                    self.group,
+                )
         else:
             if not hasattr(self, "handle"):
                 if _x.dtype == tensor.float16:

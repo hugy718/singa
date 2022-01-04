@@ -87,7 +87,9 @@ if __name__ == "__main__":
     # y = sg_ir.run([img])
 
     logging.info("model compling...")
-    dev = device.create_cuda_gpu()
+    dev = None
+    # dev = device.create_cuda_gpu() # create gpu device
+    dev = device.create_cpu_device()
     x = tensor.PlaceHolder(img.shape, device=dev)
     model = MyModel(onnx_model)
     model.compile([x], is_train=False, use_graph=True, sequential=True)

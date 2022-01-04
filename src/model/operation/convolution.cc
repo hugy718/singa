@@ -61,11 +61,9 @@ ConvHandle::ConvHandle(const Tensor &input,
   col_height = in_channels * kernel_w * kernel_h;
   col_width = conv_height * conv_width;
   imagesize = input.Size() / batchsize;
-
 #ifdef USE_DNNL
   if (input.device()->lang() == kCpp) {
     use_dnnl = true;
-    const int groups = 1;  // only groups 1 is supported for now
     auto dtype_ = dnnl::memory::data_type::f32;
 
     x_dims = dnnl::memory::dims{(int)input.shape(0), (int)in_channels,
@@ -75,8 +73,9 @@ ConvHandle::ConvHandle(const Tensor &input,
     p_dims = dnnl::memory::dims{(int)pad_h, (int)pad_w};
     o_dims = dnnl::memory::dims{(int)input.shape(0), (int)out_channels,
                                 (int)conv_height, (int)conv_width};
-    w_dims = dnnl::memory::dims{groups, (int)out_channels / groups,
-                                (int)in_channels / groups, (int)kernel_size[0],
+    w_dims = dnnl::memory::dims{(long)groups, (long) (out_channels / groups),
+                                (long) (in_channels / groups), 
+                                (int)kernel_size[0],
                                 (int)kernel_size[1]};
     // dnnl calculate dw and db in one go, a workaround to be compatible with
     // singa api
@@ -101,8 +100,8 @@ Tensor CpuConvForward(const Tensor &x, Tensor &W, Tensor &b,
         x.shape(3) == ch.width)
       << "input sample shape should not change";
 
-  CHECK(W.shape(0) == ch.num_filters && W.shape(1) == ch.channels &&
-        W.shape(2) == ch.kernel_h && W.shape(3) == ch.kernel_w)
+  CHECK(W.shape(0) == ch.num_filters && W.shape(1) == (ch.channels / ch.group) 
+        && W.shape(2) == ch.kernel_h && W.shape(3) == ch.kernel_w)
       << "weights shape should not change";
 
 #ifdef USE_DNNL
@@ -234,8 +233,8 @@ Tensor CpuConvBackwardx(const Tensor &dy, Tensor &W, const Tensor &x,
         dy.shape(3) == ch.conv_width)
       << "input gradients shape should not change";
 
-  CHECK(W.shape(0) == ch.num_filters && W.shape(1) == ch.channels &&
-        W.shape(2) == ch.kernel_h && W.shape(3) == ch.kernel_w)
+  CHECK(W.shape(0) == ch.num_filters && W.shape(1) == (ch.channels / ch.group)  
+        && W.shape(2) == ch.kernel_h && W.shape(3) == ch.kernel_w)
       << "weights shape should not change";
 
 #ifdef USE_DNNL
