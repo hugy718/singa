@@ -43,7 +43,7 @@ def preprocess(img):
     return img
 
 
-def get_image_labe():
+def get_image_label():
     # download label
     label_url = 'https://s3.amazonaws.com/onnx-model-zoo/synset.txt'
     with open(check_exist_or_download(label_url), 'r') as f:
@@ -73,19 +73,21 @@ if __name__ == "__main__":
     download_dir = '/tmp/'
     model_path = os.path.join(download_dir, 'vgg19', 'vgg19.onnx')
 
+    logging.info("onnx download model...")
+    # download_model(url)
     logging.info("onnx load model...")
-    download_model(url)
     onnx_model = onnx.load(model_path)
 
     # inference
     logging.info("preprocessing...")
-    img, labels = get_image_labe()
+    img, labels = get_image_label()
     img = preprocess(img)
     # sg_ir = sonnx.prepare(onnx_model) # run without graph
     # y = sg_ir.run([img])
 
     logging.info("model compling...")
-    dev = device.create_cuda_gpu()
+    # dev = device.create_cuda_gpu()
+    dev = device.create_cpu_device()
     x = tensor.PlaceHolder(img.shape, device=dev)
     model = MyModel(onnx_model)
     model.compile([x], is_train=False, use_graph=True, sequential=True)

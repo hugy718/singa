@@ -76,7 +76,7 @@ if __name__ == "__main__":
                               'mobilenetv2-1.0.onnx')
 
     logging.info("onnx load model...")
-    download_model(url)
+    # download_model(url)
     onnx_model = onnx.load(model_path)
 
     # inference

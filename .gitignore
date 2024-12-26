@@ -29,3 +29,10 @@ test/samples/
 # Sphinx and Doxygen Doc-Site
 doc/_build/*
 doc/en/docs/model_zoo/
+
+# Singa files generated from build
+dist/
+include/singa/singa_config.h
+python/singa.egg-info/
+src/api/config.i
+src/api/singa_wrap.cpp
